@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 212325998192854040}
   - component: {fileID: 114976540070129000}
   - component: {fileID: 60499935725562364}
+  - component: {fileID: 114087032878197864}
   m_Layer: 0
   m_Name: Street3
   m_TagString: Untagged
@@ -72,6 +73,17 @@ PolygonCollider2D:
       - {x: 0.28867513, y: 0.5}
       - {x: -0.28867513, y: 0.5}
       - {x: -0.57735026, y: 0}
+--- !u!114 &114087032878197864
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1583169874721156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48fb86000a5bba641a8804d89046e310, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114976540070129000
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -83,6 +95,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc1e797d0b7f0a74888a4a40d78d5339, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  type: 0
 --- !u!212 &212325998192854040
 SpriteRenderer:
   m_ObjectHideFlags: 1

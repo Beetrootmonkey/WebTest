@@ -8,6 +8,7 @@ public class Tile : MonoBehaviour {
     private SpriteRenderer spriteRenderer;
     private static Tile playerGround;
     public TileType type = TileType.GRASS;
+    private static Dictionary<string, Sprite> spriteMap = new Dictionary<string, Sprite>();
 
     private Player player;
 
@@ -106,16 +107,51 @@ public class Tile : MonoBehaviour {
             return Reachable.STANDING_ON;
         }
 
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(playerGround.transform.position, HexMetrics.innerRadius * 2);
-        foreach (Collider2D c in colliders)
-        {
-            if (c == ownCollider)
+        if (IsNeighbour(playerGround))
             {
-                return Reachable.IN_RANGE;
-            }
+            return Reachable.IN_RANGE;
         }
 
         return Reachable.NOT_IN_RANGE;
+    }
+
+    public bool IsNeighbour(Tile tile)
+    {
+        Tile[] neighbours = GetNeighbours();
+        foreach (Tile t in neighbours)
+        {
+            if (t == tile)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Tile[] GetNeighbours()
+    {
+        Collider2D ownCollider = GetComponent<Collider2D>();
+        if (!ownCollider)
+        {
+            Debug.Log("Fatal: Collider of Tile missing!");
+            return null;
+        }
+
+        Tile[] neighbours = new Tile[6];
+        int counter = 0;
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, HexMetrics.innerRadius * 2);
+        foreach (Collider2D c in colliders)
+        {
+            if (c != ownCollider)
+            {
+                Tile tile = c.GetComponent<Tile>();
+                if(tile)
+                {
+                    neighbours[counter++] = tile;
+                }
+            }
+        }
+        return neighbours;
     }
     
     public static void SetPlayerGround(Tile tile)
@@ -158,7 +194,11 @@ public class Tile : MonoBehaviour {
     public void setType(TileType type)
     {
         Sprite sprite = GetSprite(type);
-        if(!spriteRenderer)
+        if (!spriteRenderer)
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+        if (!spriteRenderer)
         {
             Debug.Log("Fatal: Missing tile's SpriteRenderer!");
             return;
@@ -179,29 +219,32 @@ public class Tile : MonoBehaviour {
         switch(type)
         {
             case TileType.FOREST:
-                path += "forestTile1.png";
+                path += "forestTile1";
                 break;
             case TileType.GRASS:
-                path += "grassTile1.png";
+                path += "grassTile1";
                 break;
             case TileType.MOUNTAIN:
-                path += "Template.png";
+                path += "Template";
                 break;
             case TileType.SLIME:
-                path += "slimeTile1.png";
+                path += "slimeTile1";
                 break;
             case TileType.VILLAGE:
-                path += "villageTile1.png";
+                path += "villageTile1";
                 break;
             case TileType.WATER:
-                path += "Template.png";
+                path += "Template";
                 break;
             default:
-                path += "Template.png";
+                path += "Template";
                 break;
         }
-        Sprite sprite = Resources.Load<Sprite>(path);
-        Debug.Log(sprite);
+        Sprite sprite = null;
+        if(!spriteMap.TryGetValue(path, out sprite))
+        {
+            sprite = Resources.Load<Sprite>(path);
+        }
         return sprite;
     }
 }

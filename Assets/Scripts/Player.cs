@@ -28,10 +28,13 @@ public class Player : MonoBehaviour {
 
     public bool SpendTime(int amount)
     {
-        if(timeLeft >= amount)
+        if(timeLeft > amount)
         {
             timeLeft -= amount;
             return true;
+        } else if(timeLeft == amount)
+        {
+            DepleteTime();
         }
         return false;
     }
@@ -39,7 +42,11 @@ public class Player : MonoBehaviour {
     public void DepleteTime()
     {
         timeLeft = 0;
-        // Jetzt ist slime am Zug
+        SlimeTile[] slime = FindObjectsOfType<SlimeTile>();
+        foreach(SlimeTile s in slime)
+        {
+            s.Spread();
+        }
         timeLeft = timeMax;
     }
 }
