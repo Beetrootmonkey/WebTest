@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileOrdering : MonoBehaviour
+public class Level : MonoBehaviour
 {
-    public Tile[,] tiles = null;
-    public int arrWidth = 0;
-    public int arrHeight = 0;
-    public float width = 0;
-    public float height = 0;
+    private Tile[,] tiles = null;
+    private int arrWidth = 0;
+    private int arrHeight = 0;
+    private float width = 0;
+    private float height = 0;
     // Use this for initialization
     void Awake()
     {

@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tile : MonoBehaviour {
-    private TileOverlay mouseOverlay;
-    private SpriteRenderer mouseOverlaySpriteRenderer;
+public class Tile : MonoBehaviour
+{
     private SpriteRenderer spriteRenderer;
-    private static Tile playerGround;
     public TileType type = TileType.GRASS;
     private static Dictionary<string, Sprite> spriteMap = new Dictionary<string, Sprite>();
 
-    private Player player;
+    private static Player player;
 
     public enum TileType
     {
@@ -25,21 +23,17 @@ public class Tile : MonoBehaviour {
 
     void Awake()
     {
-        mouseOverlay = FindObjectOfType<TileOverlay>();
-        if (mouseOverlay)
-        {
-            mouseOverlaySpriteRenderer = mouseOverlay.gameObject.GetComponent<SpriteRenderer>();
-        }
-
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        player = FindObjectOfType<Player>();
-        playerGround = this;
+        if (!player)
+        {
+            player = FindObjectOfType<Player>();
+        }
 
         if (type == TileType.SLIME)
         {
             SlimeTile slimeTile = GetComponent<SlimeTile>();
-            if(!slimeTile)
+            if (!slimeTile)
             {
                 gameObject.AddComponent<SlimeTile>();
             }
@@ -47,82 +41,79 @@ public class Tile : MonoBehaviour {
     }
 
     // Use this for initialization
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-
-    void OnMouseOver()
+    void Start()
     {
-        if (mouseOverlaySpriteRenderer && IsReachable() == Reachable.IN_RANGE)
-        {
-            mouseOverlay.transform.position = transform.position;
-            mouseOverlaySpriteRenderer.enabled = true;
-        }
+
     }
 
-    void OnMouseExit()
+    // Update is called once per frame
+    void Update()
     {
-        if (mouseOverlaySpriteRenderer && IsReachable() == Reachable.IN_RANGE)
-        {
-            mouseOverlaySpriteRenderer.enabled = false;
-        }
+
     }
 
-    void OnMouseDown()
+    public static Tile GetFocusedTile()
     {
-        if(IsReachable() == Reachable.IN_RANGE)
+        Tile t = null;
+
+        Camera cam = FindObjectOfType<Camera>();
+        if (cam)
         {
-            if(player.SpendTime(GetTimeLost()))
+            Vector3 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
+            mousePos.z = 0;
+            Vector3 offset = (mousePos - player.floor.transform.position).normalized * HexMetrics.innerRadius * 2;
+            offset.z = 0;
+            if (offset.magnitude == 0)
             {
-                MovePlayerHere();
+                // Mouse is exactly over player pos
+                return null;
             }
+            Vector2 pos = player.floor.transform.position + offset;
+            t = FindTile(pos);
         }
+
+        return t;
     }
 
-    enum Reachable
-    {
-        NOT_IN_RANGE,
-        IN_RANGE,
-        STANDING_ON
-    }
+    //enum Reachable
+    //{
+    //    NOT_IN_RANGE,
+    //    IN_RANGE,
+    //    STANDING_ON
+    //}
 
-    Reachable IsReachable()
-    {
-        if(!playerGround)
-        {
-            Debug.Log("Player position not registered!");
-            return Reachable.NOT_IN_RANGE;
-        }
-        Collider2D ownCollider = GetComponent<Collider2D>();
-        if (!ownCollider)
-        {
-            Debug.Log("Fatal: Collider of Tile under mouse missing!");
-            return Reachable.NOT_IN_RANGE;
-        }
-        Collider2D playerCollider = playerGround.GetComponent<Collider2D>();
-        if (!playerCollider)
-        {
-            Debug.Log("Fatal: Collider of Tile under player missing!");
-            return Reachable.NOT_IN_RANGE;
-        }
+    //Reachable IsReachable()
+    //{
+    //    if (!player.floor)
+    //    {
+    //        Debug.Log("Player position not registered!");
+    //        return Reachable.NOT_IN_RANGE;
+    //    }
+    //    Collider2D ownCollider = GetComponent<Collider2D>();
+    //    if (!ownCollider)
+    //    {
+    //        Debug.Log("Fatal: Collider of Tile under mouse missing!");
+    //        return Reachable.NOT_IN_RANGE;
+    //    }
+    //    Collider2D playerCollider = player.floor.GetComponent<Collider2D>();
+    //    if (!playerCollider)
+    //    {
+    //        Debug.Log("Fatal: Collider of Tile under player missing!");
+    //        return Reachable.NOT_IN_RANGE;
+    //    }
 
-        if(ownCollider == playerCollider)
-        {
-            return Reachable.STANDING_ON;
-        }
+    //    if (ownCollider == playerCollider)
+    //    {
+    //        return Reachable.STANDING_ON;
+    //    }
 
-        if (IsNeighbour(playerGround))
-            {
-            return Reachable.IN_RANGE;
-        }
+    //    if (IsNeighbour(player.floor))
+    //    {
+    //        return Reachable.IN_RANGE;
+    //    }
 
-        return Reachable.NOT_IN_RANGE;
-    }
+    //    return Reachable.NOT_IN_RANGE;
+    //}
 
     public bool IsNeighbour(Tile tile)
     {
@@ -153,7 +144,7 @@ public class Tile : MonoBehaviour {
             if (c != ownCollider)
             {
                 Tile tile = c.GetComponent<Tile>();
-                if(tile)
+                if (tile)
                 {
                     neighbours.Add(tile);
                 }
@@ -161,15 +152,10 @@ public class Tile : MonoBehaviour {
         }
         return neighbours;
     }
-    
-    public static void SetPlayerGround(Tile tile)
-    {
-        playerGround = tile;
-    }
 
     public int GetTimeLost()
     {
-        switch(type)
+        switch (type)
         {
             case TileType.FOREST: return 3;
             case TileType.GRASS: return 2;
@@ -182,17 +168,10 @@ public class Tile : MonoBehaviour {
         }
     }
 
-    public void MovePlayerHere()
-    {
-        player.transform.position = transform.position;
-        playerGround = this;
-        mouseOverlaySpriteRenderer.enabled = false;
-    }
-
-    private static Tile FindTile(Vector2 position)
+    public static Tile FindTile(Vector2 position)
     {
         Collider2D collider = Physics2D.OverlapCircle(position, 0.01f);
-        if(!collider)
+        if (!collider)
         {
             return null;
         }
@@ -218,13 +197,14 @@ public class Tile : MonoBehaviour {
         }
 
         // Ist NICHT slime, aber wird slime
-        if(type == TileType.SLIME && this.type != TileType.SLIME)
+        if (type == TileType.SLIME && this.type != TileType.SLIME)
         {
             gameObject.AddComponent<SlimeTile>();
-        } else if(type != TileType.SLIME && this.type == TileType.SLIME) // Ist slime, und verliert diesen state
+        }
+        else if (type != TileType.SLIME && this.type == TileType.SLIME) // Ist slime, und verliert diesen state
         {
             SlimeTile slimeTile = GetComponent<SlimeTile>();
-            if(slimeTile)
+            if (slimeTile)
             {
                 Destroy(slimeTile);
             }
@@ -237,7 +217,7 @@ public class Tile : MonoBehaviour {
     private static Sprite GetSprite(TileType type)
     {
         string path = "Sprites/Terrain/";
-        switch(type)
+        switch (type)
         {
             case TileType.FOREST:
                 path += "forestTile1";
@@ -262,7 +242,7 @@ public class Tile : MonoBehaviour {
                 break;
         }
         Sprite sprite = null;
-        if(!spriteMap.TryGetValue(path, out sprite))
+        if (!spriteMap.TryGetValue(path, out sprite))
         {
             sprite = Resources.Load<Sprite>(path);
         }
