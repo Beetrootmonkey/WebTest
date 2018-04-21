@@ -2,30 +2,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileOrdering : MonoBehaviour {
+public class TileOrdering : MonoBehaviour
+{
     public Tile[,] tiles = null;
-    public int width = 0;
-    public int height = 0;
+    public int arrWidth = 0;
+    public int arrHeight = 0;
+    public float width = 0;
+    public float height = 0;
     // Use this for initialization
-    void Awake () {
+    void Awake()
+    {
         OrderTiles(FindObjectsOfType<Tile>());
+        SpawnSlime();
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 
     void OrderTiles(Tile[] tArr)
     {
-        if(tArr == null)
+        if (tArr == null)
         {
             return;
         }
 
         tiles = new Tile[1000, 1000];
 
-        foreach(Tile t in tArr)
+        foreach (Tile t in tArr)
         {
             settleTile(t);
             placeTile(t);
@@ -54,8 +60,10 @@ public class TileOrdering : MonoBehaviour {
         float fy = tile.transform.position.y / 2 / HexMetrics.innerRadius + fx / 2 - fx * 0.5f;
         int x = (int)fx;
         int y = (int)fy;
-        width = Mathf.Max(x, width);
-        height = Mathf.Max(y, height);
+        arrWidth = Mathf.Max(x, arrWidth);
+        arrHeight = Mathf.Max(y, arrHeight);
+        width = Mathf.Max(tile.transform.position.x, width);
+        height = Mathf.Max(tile.transform.position.y, height);
 
         tile.transform.position = new Vector2(x, y);
         tiles[x, y] = tile;
@@ -73,16 +81,45 @@ public class TileOrdering : MonoBehaviour {
         tile.transform.position = position;
     }
 
-    //void CreateTile(int x, int y, int i)
-    //{
-    //    Vector3 position;
-    //    position.x = x * HexMetrics.outerRadius * 1.5f;
-    //    position.y = (y + x * 0.5f - x / 2) * HexMetrics.innerRadius * 2;
-    //    position.z = 0f;
+    private void SpawnSlime()
+    {
+        for(int i = 0; i < 20; i++)
+        {
+            Tile tile = GetRandomTile();
+            if(tile)
+            {
+                tile.setType(Tile.TileType.SLIME);
+            }
+        }
+    }
 
-    //    Tile cell = tiles[i] = Instantiate<Tile>(tilePrefab);
-    //    cell.transform.SetParent(transform, false);
-    //    cell.transform.localPosition = position;
-    //}
+    private Tile GetRandomTile()
+    {
+        Tile tile = null;
+        int tries = 10;
+        do
+        {
+            int x = Random.Range(0, arrWidth);
+            int y = Random.Range(0, arrHeight);
+            tile = GetTileAt(x, y);
+            tries--;
+        } while (tile == null && tries > 0);
+        
+        return tile;
+    }
+
+    private Tile GetTileAt(int x, int y)
+    {
+        try
+        {
+            return tiles[x, y];
+        }
+        catch (System.IndexOutOfRangeException)
+        {
+            return null;
+        }
+    }
+
+
 
 }

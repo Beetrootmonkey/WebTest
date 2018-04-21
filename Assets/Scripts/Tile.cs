@@ -5,6 +5,7 @@ using UnityEngine;
 public class Tile : MonoBehaviour {
     private TileOverlay mouseOverlay;
     private SpriteRenderer mouseOverlaySpriteRenderer;
+    private SpriteRenderer spriteRenderer;
     private static Tile playerGround;
     public TileType type = TileType.GRASS;
 
@@ -28,6 +29,8 @@ public class Tile : MonoBehaviour {
         {
             mouseOverlaySpriteRenderer = mouseOverlay.gameObject.GetComponent<SpriteRenderer>();
         }
+
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
         player = FindObjectOfType<Player>();
         playerGround = this;
@@ -140,5 +143,65 @@ public class Tile : MonoBehaviour {
         player.transform.position = transform.position;
         playerGround = this;
         mouseOverlaySpriteRenderer.enabled = false;
+    }
+
+    private static Tile FindTile(Vector2 position)
+    {
+        Collider2D collider = Physics2D.OverlapCircle(position, 0.01f);
+        if(!collider)
+        {
+            return null;
+        }
+        return collider.GetComponent<Tile>();
+    }
+
+    public void setType(TileType type)
+    {
+        Sprite sprite = GetSprite(type);
+        if(!spriteRenderer)
+        {
+            Debug.Log("Fatal: Missing tile's SpriteRenderer!");
+            return;
+        }
+        if (!sprite)
+        {
+            Debug.Log("Fatal: Couldn't find Sprite!");
+            return;
+        }
+        this.type = type;
+        spriteRenderer.sprite = sprite;
+        return;
+    }
+
+    private static Sprite GetSprite(TileType type)
+    {
+        string path = "Sprites/Terrain/";
+        switch(type)
+        {
+            case TileType.FOREST:
+                path += "forestTile1.png";
+                break;
+            case TileType.GRASS:
+                path += "grassTile1.png";
+                break;
+            case TileType.MOUNTAIN:
+                path += "Template.png";
+                break;
+            case TileType.SLIME:
+                path += "slimeTile1.png";
+                break;
+            case TileType.VILLAGE:
+                path += "villageTile1.png";
+                break;
+            case TileType.WATER:
+                path += "Template.png";
+                break;
+            default:
+                path += "Template.png";
+                break;
+        }
+        Sprite sprite = Resources.Load<Sprite>(path);
+        Debug.Log(sprite);
+        return sprite;
     }
 }
