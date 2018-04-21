@@ -13,25 +13,23 @@ public class SlimeTile : MonoBehaviour
 
     public void Spread()
     {
-        if(tile)
+        if(tile && enabled)
         {
-            Tile[] neighbours = tile.GetNeighbours();
-            List<Tile> n = new List<Tile>(neighbours);
-            do
+            List<Tile> n = tile.GetNeighbours();
+            while(n.Count > 0)
             {
-                int r = Random.Range(0, n.Capacity);
-                Tile t = neighbours[r];
+                int r = Random.Range(0, n.Count);
+                Tile t = n[r];
                 if (t.type != Tile.TileType.SLIME)
                 {
-                    t.setType(Tile.TileType.SLIME);
-                    break;
+                    t.SetType(Tile.TileType.SLIME);
+                    return;
                 } else
                 {
-                    n.Remove(t);
+                    n.RemoveAt(r);
                 }
-            } while (n.Capacity > 0);
-            
-
+            }
+            enabled = false;
         }
     }
 }

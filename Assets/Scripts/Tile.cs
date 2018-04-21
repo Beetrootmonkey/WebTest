@@ -35,6 +35,15 @@ public class Tile : MonoBehaviour {
 
         player = FindObjectOfType<Player>();
         playerGround = this;
+
+        if (type == TileType.SLIME)
+        {
+            SlimeTile slimeTile = GetComponent<SlimeTile>();
+            if(!slimeTile)
+            {
+                gameObject.AddComponent<SlimeTile>();
+            }
+        }
     }
 
     // Use this for initialization
@@ -117,7 +126,7 @@ public class Tile : MonoBehaviour {
 
     public bool IsNeighbour(Tile tile)
     {
-        Tile[] neighbours = GetNeighbours();
+        List<Tile> neighbours = GetNeighbours();
         foreach (Tile t in neighbours)
         {
             if (t == tile)
@@ -128,7 +137,7 @@ public class Tile : MonoBehaviour {
         return false;
     }
 
-    public Tile[] GetNeighbours()
+    public List<Tile> GetNeighbours()
     {
         Collider2D ownCollider = GetComponent<Collider2D>();
         if (!ownCollider)
@@ -137,8 +146,7 @@ public class Tile : MonoBehaviour {
             return null;
         }
 
-        Tile[] neighbours = new Tile[6];
-        int counter = 0;
+        List<Tile> neighbours = new List<Tile>();
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, HexMetrics.innerRadius * 2);
         foreach (Collider2D c in colliders)
         {
@@ -147,7 +155,7 @@ public class Tile : MonoBehaviour {
                 Tile tile = c.GetComponent<Tile>();
                 if(tile)
                 {
-                    neighbours[counter++] = tile;
+                    neighbours.Add(tile);
                 }
             }
         }
@@ -191,7 +199,7 @@ public class Tile : MonoBehaviour {
         return collider.GetComponent<Tile>();
     }
 
-    public void setType(TileType type)
+    public void SetType(TileType type)
     {
         Sprite sprite = GetSprite(type);
         if (!spriteRenderer)
@@ -207,6 +215,19 @@ public class Tile : MonoBehaviour {
         {
             Debug.Log("Fatal: Couldn't find Sprite!");
             return;
+        }
+
+        // Ist NICHT slime, aber wird slime
+        if(type == TileType.SLIME && this.type != TileType.SLIME)
+        {
+            gameObject.AddComponent<SlimeTile>();
+        } else if(type != TileType.SLIME && this.type == TileType.SLIME) // Ist slime, und verliert diesen state
+        {
+            SlimeTile slimeTile = GetComponent<SlimeTile>();
+            if(slimeTile)
+            {
+                Destroy(slimeTile);
+            }
         }
         this.type = type;
         spriteRenderer.sprite = sprite;

@@ -10,7 +10,7 @@ public class TileUpdater : MonoBehaviour
         Tile tile = GetComponent<Tile>();
         if(tile)
         {
-            tile.setType(tile.type);
+            tile.SetType(tile.type);
         }
     }
 }

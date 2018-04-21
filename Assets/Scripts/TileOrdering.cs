@@ -83,12 +83,12 @@ public class TileOrdering : MonoBehaviour
 
     private void SpawnSlime()
     {
-        for(int i = 0; i < 20; i++)
+        for(int i = 0; i < 0; i++)
         {
             Tile tile = GetRandomTile();
             if(tile)
             {
-                tile.setType(Tile.TileType.SLIME);
+                tile.SetType(Tile.TileType.SLIME);
             }
         }
     }
