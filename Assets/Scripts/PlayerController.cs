@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
-
+    public float speed = 3f;
 	// Use this for initialization
 	void Start () {
 		
@@ -11,8 +11,10 @@ public class PlayerController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        var x = Input.GetAxis("Horizontal") * Time.deltaTime * 3.0f;
-        var y = Input.GetAxis("Vertical") * Time.deltaTime * 3.0f;
-        transform.Translate(x, y, 0);
+        var x = Input.GetAxis("Horizontal");
+        var y = Input.GetAxis("Vertical");
+        Vector2 v = new Vector2(x, y).normalized * Time.deltaTime * speed;
+        transform.Translate(v);
+
     }
 }
