@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TileOrdering : MonoBehaviour {
-    Tile[] tiles = null;
+    Tile[,] tiles = null;
     public int width = 6;
     public int height = 6;
     // Use this for initialization
     void Awake () {
-        tiles = FindObjectsOfType<Tile>();
-        
-        OrderTiles();
+        OrderTiles(FindObjectsOfType<Tile>());
     }
 	
 	// Update is called once per frame
@@ -18,14 +16,16 @@ public class TileOrdering : MonoBehaviour {
 		
 	}
 
-    void OrderTiles()
+    void OrderTiles(Tile[] tArr)
     {
-        if(tiles == null)
+        if(tArr == null)
         {
             return;
         }
 
-        foreach(Tile t in tiles)
+        tiles = new Tile[1000, 1000];
+
+        foreach(Tile t in tArr)
         {
             settleTile(t);
             placeTile(t);
@@ -56,6 +56,7 @@ public class TileOrdering : MonoBehaviour {
         int y = (int)fy;
 
         tile.transform.position = new Vector2(x, y);
+        tiles[x, y] = tile;
     }
 
     void placeTile(Tile tile)
