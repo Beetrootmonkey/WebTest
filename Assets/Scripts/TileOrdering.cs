@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TileOrdering : MonoBehaviour {
-    Tile[,] tiles = null;
-    public int width = 6;
-    public int height = 6;
+    public Tile[,] tiles = null;
+    public int width = 0;
+    public int height = 0;
     // Use this for initialization
     void Awake () {
         OrderTiles(FindObjectsOfType<Tile>());
@@ -54,6 +54,8 @@ public class TileOrdering : MonoBehaviour {
         float fy = tile.transform.position.y / 2 / HexMetrics.innerRadius + fx / 2 - fx * 0.5f;
         int x = (int)fx;
         int y = (int)fy;
+        width = Mathf.Max(x, width);
+        height = Mathf.Max(y, height);
 
         tile.transform.position = new Vector2(x, y);
         tiles[x, y] = tile;
