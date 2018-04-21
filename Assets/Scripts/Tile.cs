@@ -6,8 +6,20 @@ public class Tile : MonoBehaviour {
     private TileOverlay mouseOverlay;
     private SpriteRenderer mouseOverlaySpriteRenderer;
     private static Tile playerGround;
+    public TileType type = TileType.GRASS;
 
     private Player player;
+
+    public enum TileType
+    {
+        GRASS,
+        FOREST,
+        STREET,
+        VILLAGE,
+        SLIME,
+        WATER,
+        MOUNTAIN
+    }
 
     void Awake()
     {
@@ -52,9 +64,10 @@ public class Tile : MonoBehaviour {
     {
         if(IsReachable() == Reachable.IN_RANGE)
         {
-            player.transform.position = transform.position;
-            playerGround = this;
-            mouseOverlaySpriteRenderer.enabled = false;
+            if(player.SpendTime(GetTimeLost()))
+            {
+                MovePlayerHere();
+            }
         }
     }
 
@@ -100,5 +113,32 @@ public class Tile : MonoBehaviour {
         }
 
         return Reachable.NOT_IN_RANGE;
+    }
+    
+    public static void SetPlayerGround(Tile tile)
+    {
+        playerGround = tile;
+    }
+
+    public int GetTimeLost()
+    {
+        switch(type)
+        {
+            case TileType.FOREST: return 3;
+            case TileType.GRASS: return 2;
+            case TileType.MOUNTAIN: return 10;
+            case TileType.SLIME: return 1;
+            case TileType.STREET: return 1;
+            case TileType.VILLAGE: return 4;
+            case TileType.WATER: return 10;
+            default: return 1;
+        }
+    }
+
+    public void MovePlayerHere()
+    {
+        player.transform.position = transform.position;
+        playerGround = this;
+        mouseOverlaySpriteRenderer.enabled = false;
     }
 }
