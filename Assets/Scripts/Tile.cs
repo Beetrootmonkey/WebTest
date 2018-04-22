@@ -264,7 +264,8 @@ public class Tile : MonoBehaviour
                 mainPath += "mountainTile1";
                 break;
             case TileType.SLIME:
-                mainPath += "slimeTile1";
+                mainPath += "Slime/slimeTile" + Random.Range(1, 4);
+                edgePath += "Slime/edge_";
                 break;
             case TileType.PATH:
                 mainPath += "Path/pathTile" + Random.Range(1, 4);
@@ -274,7 +275,8 @@ public class Tile : MonoBehaviour
                 mainPath += "villageTile1";
                 break;
             case TileType.WATER:
-                mainPath += "waterTile1";
+                mainPath += "Water/waterTile1";
+                edgePath += "Water/edge_";
                 break;
             default:
                 mainPath += "Template";
