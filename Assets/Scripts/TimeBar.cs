@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class TimeBar : MonoBehaviour
 {
-    public Transform sun; 
-    public Transform moon;
+    public TimeIcon sun; 
+    public TimeIcon moon;
     public Transform[] watches = new Transform[8];
     private Image[] images = new Image[10];
     private Player player;

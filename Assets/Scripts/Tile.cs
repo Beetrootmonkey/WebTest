@@ -7,6 +7,7 @@ public class Tile : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     public TileType type = TileType.GRASS;
     private TileType oldType = TileType.GRASS;
+    public TileEdge[] edges = new TileEdge[6];
     private static Dictionary<string, Sprite> spriteMap = new Dictionary<string, Sprite>();
 
     private static Player player;
@@ -46,13 +47,51 @@ public class Tile : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-
+        RecalculateEdges();
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    public void RecalculateEdges()
+    {
+        foreach (TileEdge e in edges)
+        {
+            SpriteRenderer renderer = e.gameObject.GetComponent<SpriteRenderer>();
+            if (renderer)
+            {
+                renderer.enabled = true;
+            }
+        }
+        List<Tile> neighbours = GetNeighbours();
+        foreach (Tile t in neighbours)
+        {
+            if (t.type == type)
+            {
+                int index = CalculateIndexOfDirection(t);
+                SpriteRenderer renderer = edges[index].gameObject.GetComponent<SpriteRenderer>();
+                if (renderer)
+                {
+                    if (renderer.enabled)
+                    {
+
+                        renderer.enabled = false;
+                    }
+                    else
+                    {
+
+                        //Debug.Log("Fatal: Tried to disable edge that was already disabled! - " + index);
+                    }
+                }
+                else
+                {
+                    Debug.Log("Fatal: Couldn't find renderer of edge!");
+                }
+            }
+        }
     }
 
     public static Tile GetFocusedTile()
@@ -133,22 +172,39 @@ public class Tile : MonoBehaviour
 
     public static Tile FindTile(Vector2 position)
     {
-        Collider2D collider = Physics2D.OverlapCircle(position, 0.01f);
-        if (!collider)
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(position, HexMetrics.innerRadius * 0.5f);
+        Tile tile = null;
+        foreach (Collider2D c in colliders)
         {
-            return null;
+            Tile t = c.GetComponent<Tile>();
+            if (t)
+            {
+                if(tile)
+                {
+                    float distance = Utils.CalculateDistance(t.transform.position, position);
+                    if(distance < Utils.CalculateDistance(tile.transform.position, position))
+                    {
+                        tile = t;
+                    }
+                }
+                else
+                {
+                    tile = t;
+                }
+            }
         }
-        return collider.GetComponent<Tile>();
+
+        return tile;
     }
 
     public void SetType(TileType type, bool forceUpdate = false)
     {
-        if(type == oldType && !forceUpdate)
+        if (type == oldType && !forceUpdate)
         {
             return;
         }
         oldType = type;
-        Sprite sprite = GetSprite(type);
+        Sprite[] sprites = GetSprites(type);
         if (!spriteRenderer)
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -158,9 +214,9 @@ public class Tile : MonoBehaviour
             Debug.Log("Fatal: Missing tile's SpriteRenderer!");
             return;
         }
-        if (!sprite)
+        if (sprites.Length < 1)
         {
-            Debug.Log("Fatal: Couldn't find Sprite!");
+            Debug.Log("Fatal: Couldn't find Sprites!");
             return;
         }
 
@@ -178,45 +234,91 @@ public class Tile : MonoBehaviour
             }
         }
         this.type = type;
-        spriteRenderer.sprite = sprite;
+        spriteRenderer.sprite = sprites[0];
+        for (int i = 1; i < sprites.Length; i++)
+        {
+            SpriteRenderer r = edges[i - 1].GetComponent<SpriteRenderer>();
+            if (r && sprites[i])
+            {
+                r.sprite = sprites[i];
+            }
+        }
+        RecalculateEdges();
         return;
     }
 
-    private static Sprite GetSprite(TileType type)
+    private static Sprite[] GetSprites(TileType type)
     {
-        string path = "Sprites/Terrain/";
+        string defEdgePath = "Sprites/Terrain/EdgeDetection/edge_";
+        string mainPath = "Sprites/Terrain/";
+        string edgePath = mainPath + "";
         switch (type)
         {
             case TileType.FOREST:
-                path += "forestTile1";
+                mainPath += "forestTile1";
                 break;
             case TileType.GRASS:
-                path += "grassTile1";
+                mainPath += "grassTile1";
                 break;
             case TileType.MOUNTAIN:
-                path += "Template";
+                mainPath += "mountainTile1";
                 break;
             case TileType.SLIME:
-                path += "slimeTile1";
+                mainPath += "slimeTile1";
                 break;
             case TileType.PATH:
-                path += "pathTile" + Random.Range(1, 4);
+                mainPath += "Path/pathTile" + Random.Range(1, 4);
+                edgePath += "Path/edge_";
                 break;
             case TileType.VILLAGE:
-                path += "villageTile1";
+                mainPath += "villageTile1";
                 break;
             case TileType.WATER:
-                path += "Template";
+                mainPath += "waterTile1";
                 break;
             default:
-                path += "Template";
+                mainPath += "Template";
                 break;
         }
-        Sprite sprite = null;
-        if (!spriteMap.TryGetValue(path, out sprite))
+        Sprite[] sprites = new Sprite[7];
+        if (!spriteMap.TryGetValue(mainPath, out sprites[0]))
         {
-            sprite = Resources.Load<Sprite>(path);
+            sprites[0] = Resources.Load<Sprite>(mainPath);
+            if (sprites[0])
+            {
+                spriteMap.Add(mainPath, sprites[0]);
+            }
         }
-        return sprite;
+        spriteMap.Clear();
+        for (int i = 1; i < sprites.Length; i++)
+        {
+            string path = edgePath + (i - 1);
+            //if (!spriteMap.TryGetValue(path, out sprites[i]))
+            //{
+                sprites[i] = Resources.Load<Sprite>(path);
+                if (sprites[i])
+                {
+                    //spriteMap.Add(path, sprites[i]);
+                }
+                else
+                {
+                    path = defEdgePath + (i - 1);
+                    sprites[i] = Resources.Load<Sprite>(path);
+                    if (sprites[i])
+                    {
+                        //spriteMap.Add(path, sprites[i]);
+                    }
+                }
+            //}
+        }
+
+        return sprites;
     }
+
+    public int CalculateIndexOfDirection(Tile tile)
+    {
+        return Utils.CalculateIndexOfDirection(transform.position, tile.transform.position);
+    }
+
+
 }

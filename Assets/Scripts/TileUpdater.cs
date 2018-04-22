@@ -11,6 +11,7 @@ public class TileUpdater : MonoBehaviour
         if(tile)
         {
             tile.SetType(tile.type);
+            tile.RecalculateEdges();
         }
     }
 }

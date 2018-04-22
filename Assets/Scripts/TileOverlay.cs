@@ -9,9 +9,10 @@ public class TileOverlay : MonoBehaviour {
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    public void Highlight(Tile tile)
+    public void Highlight(Tile tile, Color color)
     {
         transform.position = tile.transform.position;
+        spriteRenderer.color = color;
         spriteRenderer.enabled = true;
     }
 

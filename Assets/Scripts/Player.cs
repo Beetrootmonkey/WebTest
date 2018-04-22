@@ -29,7 +29,7 @@ public class Player : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if(menu.IsActive()) {
+        if(menu && menu.IsActive()) {
             return;
         }
 
@@ -39,7 +39,8 @@ public class Player : MonoBehaviour {
             if (t && !UIHover.IsMouseOverUI() && !moving)
             {
                 Face(t);
-                focusedTileOverlay.Highlight(t);
+                Color color = TestSpendTime(t.GetTimeLost()) ? Color.white : Color.red;
+                focusedTileOverlay.Highlight(t, color);
             }
             else
             {
@@ -75,19 +76,8 @@ public class Player : MonoBehaviour {
 
     private void Face(Tile tile)
     {
-        Vector2 tilePos = tile.transform.position;
-        Vector2 pos = transform.position;
-        Vector2 offset = (tilePos - pos);
-        float angle = Vector2.SignedAngle(Vector2.right, offset);
-        angle += 360;
-        angle += 90;
-        angle %= 360;
-        angle /= 60;
-
-        int dir = 6 - (int)angle;
-        dir %= 6;
-        spriteRenderer.sprite = sprites[dir];
-
+        int index = Utils.CalculateIndexOfDirection(transform.position, tile.transform.position);
+        spriteRenderer.sprite = sprites[index];
     }
 
     public int GetTimeLeft()
@@ -97,14 +87,25 @@ public class Player : MonoBehaviour {
 
     public bool SpendTime(int amount)
     {
-        if(timeLeft > amount)
+        bool subtracted = false;
+        if(TestSpendTime(amount))
         {
             timeLeft -= amount;
-            return true;
-        } else if(timeLeft == amount)
+            subtracted = true;
+        }
+
+        if(timeLeft <= 0)
         {
-            timeLeft = 0;
             DepleteTime();
+        }
+
+        return subtracted;
+    }
+
+    public bool TestSpendTime(int amount)
+    {
+        if (timeLeft >= amount)
+        {
             return true;
         }
         return false;
