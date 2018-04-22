@@ -4,16 +4,18 @@ using UnityEngine;
 
 public class Player : MonoBehaviour {
     private TileOverlay focusedTileOverlay;
-    private SpriteRenderer mouseOverlaySpriteRenderer;
+    private SpriteRenderer spriteRenderer;
     private MenuController menu;
     public Tile floor;
     private const int timeMax = 8;
     private int timeLeft = timeMax;
     private bool slimeAIRunning;
+    public Sprite[] sprites = new Sprite[6];
 
     void Awake()
     {
         focusedTileOverlay = FindObjectOfType<TileOverlay>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         menu = FindObjectOfType<MenuController>();
     }
 
@@ -34,6 +36,7 @@ public class Player : MonoBehaviour {
             Tile t = Tile.GetFocusedTile();
             if (t && !UIHover.IsMouseOverUI())
             {
+                Face(t);
                 focusedTileOverlay.Highlight(t);
             }
             else
@@ -53,6 +56,24 @@ public class Player : MonoBehaviour {
         }
     }
 
+    private void Face(Tile tile)
+    {
+        Vector2 tilePos = tile.transform.position;
+        Vector2 pos = transform.position;
+        Vector2 offset = (tilePos - pos);
+        float angle = Vector2.SignedAngle(Vector2.right, offset);
+        angle += 360;
+        angle += 90;
+        angle %= 360;
+        angle /= 60;
+
+        int dir = 6 - (int)angle;
+        dir %= 6;
+        Debug.Log(dir);
+        spriteRenderer.sprite = sprites[dir];
+
+    }
+
     public int GetTimeLeft()
     {
         return timeLeft;
@@ -66,6 +87,7 @@ public class Player : MonoBehaviour {
             return true;
         } else if(timeLeft == amount)
         {
+            timeLeft = 0;
             DepleteTime();
             return true;
         }

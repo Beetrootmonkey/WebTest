@@ -5,8 +5,10 @@ using UnityEngine.UI;
 
 public class TimeBar : MonoBehaviour
 {
+    public Transform sun; 
+    public Transform moon;
     public Transform[] watches = new Transform[8];
-    private Image[] images = new Image[8];
+    private Image[] images = new Image[10];
     private Player player;
     // Use this for initialization
     void Start()
@@ -16,6 +18,8 @@ public class TimeBar : MonoBehaviour
         {
             images[i] = watches[i].GetComponent<Image>();
         }
+        images[8] = sun.GetComponent<Image>();
+        images[9] = moon.GetComponent<Image>();
     }
 
     // Update is called once per frame
@@ -34,6 +38,15 @@ public class TimeBar : MonoBehaviour
                     images[i].enabled = false;
                 }
             }
+        }
+        if(player.GetTimeLeft() > 0)
+        {
+            images[8].enabled = true;
+            images[9].enabled = false;
+        } else
+        {
+            images[8].enabled = false;
+            images[9].enabled = true;
         }
     }
 }
