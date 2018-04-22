@@ -75,46 +75,6 @@ public class Tile : MonoBehaviour
         return t;
     }
 
-    //enum Reachable
-    //{
-    //    NOT_IN_RANGE,
-    //    IN_RANGE,
-    //    STANDING_ON
-    //}
-
-    //Reachable IsReachable()
-    //{
-    //    if (!player.floor)
-    //    {
-    //        Debug.Log("Player position not registered!");
-    //        return Reachable.NOT_IN_RANGE;
-    //    }
-    //    Collider2D ownCollider = GetComponent<Collider2D>();
-    //    if (!ownCollider)
-    //    {
-    //        Debug.Log("Fatal: Collider of Tile under mouse missing!");
-    //        return Reachable.NOT_IN_RANGE;
-    //    }
-    //    Collider2D playerCollider = player.floor.GetComponent<Collider2D>();
-    //    if (!playerCollider)
-    //    {
-    //        Debug.Log("Fatal: Collider of Tile under player missing!");
-    //        return Reachable.NOT_IN_RANGE;
-    //    }
-
-    //    if (ownCollider == playerCollider)
-    //    {
-    //        return Reachable.STANDING_ON;
-    //    }
-
-    //    if (IsNeighbour(player.floor))
-    //    {
-    //        return Reachable.IN_RANGE;
-    //    }
-
-    //    return Reachable.NOT_IN_RANGE;
-    //}
-
     public bool IsNeighbour(Tile tile)
     {
         List<Tile> neighbours = GetNeighbours();
@@ -230,6 +190,9 @@ public class Tile : MonoBehaviour
                 break;
             case TileType.SLIME:
                 path += "slimeTile1";
+                break;
+            case TileType.STREET:
+                path += "streetTile1";
                 break;
             case TileType.VILLAGE:
                 path += "villageTile1";

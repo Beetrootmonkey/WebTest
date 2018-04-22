@@ -7,6 +7,8 @@ public class Player : MonoBehaviour {
     private SpriteRenderer spriteRenderer;
     private MenuController menu;
     public Tile floor;
+    private bool moving;
+    public float speed;
     private const int timeMax = 8;
     private int timeLeft = timeMax;
     private bool slimeAIRunning;
@@ -22,7 +24,7 @@ public class Player : MonoBehaviour {
     // Use this for initialization
     void Start () {
         // Register the tile at the players floor
-        ForceMove(transform.position);
+        Teleport(transform.position);
     }
 	
 	// Update is called once per frame
@@ -34,7 +36,7 @@ public class Player : MonoBehaviour {
         if (focusedTileOverlay)
         {
             Tile t = Tile.GetFocusedTile();
-            if (t && !UIHover.IsMouseOverUI())
+            if (t && !UIHover.IsMouseOverUI() && !moving)
             {
                 Face(t);
                 focusedTileOverlay.Highlight(t);
@@ -45,7 +47,7 @@ public class Player : MonoBehaviour {
             }
         }
 
-        if(Input.GetMouseButtonDown(0) && !UIHover.IsMouseOverUI())
+        if(Input.GetMouseButtonDown(0) && !UIHover.IsMouseOverUI() && !moving)
         {
             Tile t = Tile.GetFocusedTile();
 
@@ -54,6 +56,21 @@ public class Player : MonoBehaviour {
                 TryMove(t);
             }
         }
+
+        if(moving)
+        {
+            float dist = (floor.transform.position - transform.position).magnitude;
+            if(dist > 0.01)
+            {
+                transform.position = Vector2.Lerp(transform.position, floor.transform.position, speed);
+            } else
+            {
+                moving = false;
+                transform.position = floor.transform.position;
+            }
+            
+        }
+
     }
 
     private void Face(Tile tile)
@@ -69,7 +86,6 @@ public class Player : MonoBehaviour {
 
         int dir = 6 - (int)angle;
         dir %= 6;
-        Debug.Log(dir);
         spriteRenderer.sprite = sprites[dir];
 
     }
@@ -117,7 +133,8 @@ public class Player : MonoBehaviour {
     {
         if(tile)
         {
-            transform.position = tile.transform.position;
+            moving = true;
+            //transform.position = tile.transform.position;
             floor = tile;
         }
     }
@@ -149,6 +166,30 @@ public class Player : MonoBehaviour {
         {
             TryMove(t);
         }
+    }
+
+    public void Teleport(Tile tile)
+    {
+        if (tile)
+        {
+            transform.position = tile.transform.position;
+            floor = tile;
+        }
+    }
+
+    public void Teleport(Vector2 position)
+    {
+        Tile t = Tile.FindTile(position);
+        if (t)
+        {
+            Teleport(t);
+        }
+    }
+
+    public void Kill()
+    {
+        // Show Death Screen
+        // Switch to Menu
     }
 
 

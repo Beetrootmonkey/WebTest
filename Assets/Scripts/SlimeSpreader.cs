@@ -5,6 +5,7 @@ using UnityEngine;
 public class SlimeSpreader : MonoBehaviour{
 
     public static float chance = 0.5f;
+    public static float delay = 0.5f;
     public static bool slimeSpreading;
     public static IEnumerator SpreadSlime()
     {
@@ -13,14 +14,20 @@ public class SlimeSpreader : MonoBehaviour{
             slimeSpreading = true;
             yield return new WaitForSeconds(0.1f);
             SlimeTile[] slime = FindObjectsOfType<SlimeTile>();
-            foreach (SlimeTile s in slime)
+            List<SlimeTile> tiles = new List<SlimeTile>(slime);
+            tiles = tiles.FindAll(t => t.enabled && Random.Range(0f, 0.99999999f) < chance);
+            int counter = 0;
+            foreach (SlimeTile t in tiles)
             {
-                if (s.enabled && Random.Range(0f, 0.99999999f) < chance)
+                t.Spread();
+                counter++;
+                if(counter >= tiles.Count * 0.1f)
                 {
-                    s.Spread();
-                    yield return new WaitForSeconds(0.01f);
+                    counter = 0;
+                    yield return new WaitForSeconds(delay * 0.1f);
                 }
             }
+            yield return new WaitForSeconds(0.1f);
             slimeSpreading = false;
         }
         yield break;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Level : MonoBehaviour
 {
-    public int slimeTiles = 20;
+    public float slimeTiles = 0.001f;
     private Tile[,] tiles = null;
     private int arrWidth = 0;
     private int arrHeight = 0;
@@ -84,7 +84,7 @@ public class Level : MonoBehaviour
 
     private void SpawnSlime()
     {
-        for(int i = 0; i < slimeTiles; i++)
+        for(int i = 0; i < slimeTiles * arrWidth * arrHeight; i++)
         {
             Tile tile = GetRandomTile();
             if(tile)
