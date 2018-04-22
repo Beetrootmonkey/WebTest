@@ -6,16 +6,21 @@ using UnityEngine.UI;
 public class MenuController : MonoBehaviour
 {
     private bool active = false;
+    public bool showWithESC = true;
+    public bool hideByDefault = true;
     // Use this for initialization
     void Start()
     {
-        SetActive(active);
+        if(hideByDefault)
+        {
+            SetActive(false);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (showWithESC && Input.GetKeyDown(KeyCode.Escape))
         {
             ToggleActive();
         }

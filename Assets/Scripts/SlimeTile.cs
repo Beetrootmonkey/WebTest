@@ -29,7 +29,8 @@ public class SlimeTile : MonoBehaviour
                     n.RemoveAt(r);
                 }
             }
-            enabled = false;
+            //enabled = false;
+            tile.Remove();
         }
     }
 }

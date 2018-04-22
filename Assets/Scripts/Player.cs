@@ -6,37 +6,47 @@ public class Player : MonoBehaviour {
     private TileOverlay focusedTileOverlay;
     private SpriteRenderer spriteRenderer;
     private MenuController menu;
+    private AudioSource source;
     public Tile floor;
     private bool moving;
     public float speed;
+    private int maxFootSteps = 1;
+    private int footStepCounter = 1;
     private const int timeMax = 8;
     private int timeLeft = timeMax;
     private bool slimeAIRunning;
     public Sprite[] sprites = new Sprite[6];
+    public bool dead = false;
 
     void Awake()
     {
         focusedTileOverlay = FindObjectOfType<TileOverlay>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         menu = FindObjectOfType<MenuController>();
+        source = GetComponent<AudioSource>();
     }
 
     // Use this for initialization
     void Start () {
         // Register the tile at the players floor
         Teleport(transform.position);
+        floor.type = Tile.TileType.GRASS;
     }
 	
 	// Update is called once per frame
 	void Update () {
-        if(menu && menu.IsActive()) {
+        if(floor.type == Tile.TileType.SLIME)
+        {
+            Kill();
+        }
+        if(menu && menu.IsActive() || dead) {
             return;
         }
 
         if (focusedTileOverlay)
         {
             Tile t = Tile.GetFocusedTile();
-            if (t && !UIHover.IsMouseOverUI() && !moving)
+            if (t && !UIHover.IsMouseOverUI() && !moving && timeLeft > 0)
             {
                 Face(t);
                 Color color = TestSpendTime(t.GetTimeLost()) ? Color.white : Color.red;
@@ -61,11 +71,18 @@ public class Player : MonoBehaviour {
         if(moving)
         {
             float dist = (floor.transform.position - transform.position).magnitude;
-            if(dist > 0.01)
+            if(dist > 0.05)
             {
+                if (source && !source.isPlaying && footStepCounter > 0)
+                {
+                    source.Play();
+                    footStepCounter--;
+                }
                 transform.position = Vector2.Lerp(transform.position, floor.transform.position, speed);
+                
             } else
             {
+                footStepCounter = maxFootSteps;
                 moving = false;
                 transform.position = floor.transform.position;
             }
@@ -189,8 +206,27 @@ public class Player : MonoBehaviour {
 
     public void Kill()
     {
-        // Show Death Screen
-        // Switch to Menu
+        StartCoroutine(ActuallyKill());
+    }
+
+    private IEnumerator ActuallyKill()
+    {
+        if(!dead)
+        {
+            dead = true;
+            DeathManager d = FindObjectOfType<DeathManager>();
+            if (d)
+            {
+                d.FadeIn(2);
+            }
+            yield return new WaitForSeconds(4);
+            SceneLoader loader = FindObjectOfType<SceneLoader>();
+            if(loader)
+            {
+                loader.Load("menu");
+            }
+        }
+        yield break;
     }
 
 

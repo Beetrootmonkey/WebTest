@@ -20,7 +20,8 @@ public class Tile : MonoBehaviour
         SLIME,
         WATER,
         MOUNTAIN,
-        PATH
+        PATH,
+        NONE
     }
 
     void Awake()
@@ -48,12 +49,22 @@ public class Tile : MonoBehaviour
     void Start()
     {
         RecalculateEdges();
+        RecalculateNeighbouringEdges();
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    public void RecalculateNeighbouringEdges()
+    {
+        List<Tile> neighbours = GetNeighbours();
+        foreach (Tile t in neighbours)
+        {
+            t.RecalculateEdges();
+        }
     }
 
     public void RecalculateEdges()
@@ -99,7 +110,7 @@ public class Tile : MonoBehaviour
         Tile t = null;
 
         Camera cam = FindObjectOfType<Camera>();
-        if (cam)
+        if (cam && player.floor)
         {
             Vector3 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
             mousePos.z = 0;
@@ -179,10 +190,10 @@ public class Tile : MonoBehaviour
             Tile t = c.GetComponent<Tile>();
             if (t)
             {
-                if(tile)
+                if (tile)
                 {
                     float distance = Utils.CalculateDistance(t.transform.position, position);
-                    if(distance < Utils.CalculateDistance(tile.transform.position, position))
+                    if (distance < Utils.CalculateDistance(tile.transform.position, position))
                     {
                         tile = t;
                     }
@@ -244,6 +255,7 @@ public class Tile : MonoBehaviour
             }
         }
         RecalculateEdges();
+        RecalculateNeighbouringEdges();
         return;
     }
 
@@ -258,7 +270,9 @@ public class Tile : MonoBehaviour
                 mainPath += "forestTile1";
                 break;
             case TileType.GRASS:
-                mainPath += "grassTile1";
+                mainPath += "Grass/grassTile" +
+                    (Random.Range(1, 20) == 1 ? "2"
+                    : Random.Range(1, 5) == 1 ? "3" : "1");
                 break;
             case TileType.MOUNTAIN:
                 mainPath += "mountainTile1";
@@ -291,26 +305,26 @@ public class Tile : MonoBehaviour
                 spriteMap.Add(mainPath, sprites[0]);
             }
         }
-        spriteMap.Clear();
+        //spriteMap.Clear();
         for (int i = 1; i < sprites.Length; i++)
         {
             string path = edgePath + (i - 1);
             //if (!spriteMap.TryGetValue(path, out sprites[i]))
             //{
+            sprites[i] = Resources.Load<Sprite>(path);
+            if (sprites[i])
+            {
+                //spriteMap.Add(path, sprites[i]);
+            }
+            else
+            {
+                path = defEdgePath + (i - 1);
                 sprites[i] = Resources.Load<Sprite>(path);
                 if (sprites[i])
                 {
                     //spriteMap.Add(path, sprites[i]);
                 }
-                else
-                {
-                    path = defEdgePath + (i - 1);
-                    sprites[i] = Resources.Load<Sprite>(path);
-                    if (sprites[i])
-                    {
-                        //spriteMap.Add(path, sprites[i]);
-                    }
-                }
+            }
             //}
         }
 
@@ -322,5 +336,10 @@ public class Tile : MonoBehaviour
         return Utils.CalculateIndexOfDirection(transform.position, tile.transform.position);
     }
 
-
+    public void Remove()
+    {
+        type = TileType.NONE;
+        RecalculateNeighbouringEdges();
+        Destroy(gameObject);
+    }
 }
