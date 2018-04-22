@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : MonoBehaviour {
     private TileOverlay focusedTileOverlay;
     private SpriteRenderer mouseOverlaySpriteRenderer;
+    private MenuController menu;
     public Tile floor;
     private const int timeMax = 8;
     private int timeLeft = timeMax;
@@ -13,6 +14,7 @@ public class Player : MonoBehaviour {
     void Awake()
     {
         focusedTileOverlay = FindObjectOfType<TileOverlay>();
+        menu = FindObjectOfType<MenuController>();
     }
 
     // Use this for initialization
@@ -23,10 +25,14 @@ public class Player : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        if(menu.IsActive()) {
+            return;
+        }
+
         if (focusedTileOverlay)
         {
             Tile t = Tile.GetFocusedTile();
-            if (t)
+            if (t && !UIHover.IsMouseOverUI())
             {
                 focusedTileOverlay.Highlight(t);
             }
@@ -36,7 +42,7 @@ public class Player : MonoBehaviour {
             }
         }
 
-        if(Input.GetMouseButtonDown(0))
+        if(Input.GetMouseButtonDown(0) && !UIHover.IsMouseOverUI())
         {
             Tile t = Tile.GetFocusedTile();
 
