@@ -6,6 +6,7 @@ public class Tile : MonoBehaviour
 {
     private SpriteRenderer spriteRenderer;
     public TileType type = TileType.GRASS;
+    private TileType oldType = TileType.GRASS;
     private static Dictionary<string, Sprite> spriteMap = new Dictionary<string, Sprite>();
 
     private static Player player;
@@ -14,11 +15,11 @@ public class Tile : MonoBehaviour
     {
         GRASS,
         FOREST,
-        STREET,
         VILLAGE,
         SLIME,
         WATER,
-        MOUNTAIN
+        MOUNTAIN,
+        PATH
     }
 
     void Awake()
@@ -38,6 +39,8 @@ public class Tile : MonoBehaviour
                 gameObject.AddComponent<SlimeTile>();
             }
         }
+
+        SetType(type, true);
     }
 
     // Use this for initialization
@@ -121,7 +124,7 @@ public class Tile : MonoBehaviour
             case TileType.GRASS: return 2;
             case TileType.MOUNTAIN: return 10;
             case TileType.SLIME: return 1;
-            case TileType.STREET: return 1;
+            case TileType.PATH: return 1;
             case TileType.VILLAGE: return 4;
             case TileType.WATER: return 10;
             default: return 1;
@@ -138,8 +141,13 @@ public class Tile : MonoBehaviour
         return collider.GetComponent<Tile>();
     }
 
-    public void SetType(TileType type)
+    public void SetType(TileType type, bool forceUpdate = false)
     {
+        if(type == oldType && !forceUpdate)
+        {
+            return;
+        }
+        oldType = type;
         Sprite sprite = GetSprite(type);
         if (!spriteRenderer)
         {
@@ -191,8 +199,8 @@ public class Tile : MonoBehaviour
             case TileType.SLIME:
                 path += "slimeTile1";
                 break;
-            case TileType.STREET:
-                path += "streetTile1";
+            case TileType.PATH:
+                path += "pathTile" + Random.Range(1, 4);
                 break;
             case TileType.VILLAGE:
                 path += "villageTile1";
