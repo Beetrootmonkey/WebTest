@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteInEditMode]
 public class TileUpdater : MonoBehaviour
 {
-    void Update()
+    [ContextMenu("UpdateAllTiles")]
+    public void UpdateTiles()
     {
-        Tile tile = GetComponent<Tile>();
-        if(tile)
+        Tile[] tiles = GetComponentsInChildren<Tile>();
+        foreach (Tile t in tiles)
         {
-            tile.SetType(tile.type);
-            //tile.RecalculateEdges();
+            t.Settle();
+            t.SetType(t.type);
+        }
+        foreach (Tile t in tiles)
+        {
+            t.RecalculateEdges();
         }
     }
 }

@@ -24,7 +24,7 @@ public class Tile : MonoBehaviour
         NONE
     }
 
-    void Awake()
+    public void OnAwake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -46,16 +46,10 @@ public class Tile : MonoBehaviour
     }
 
     // Use this for initialization
-    void Start()
+    public void OnStart()
     {
         RecalculateEdges();
         RecalculateNeighbouringEdges();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     public void RecalculateNeighbouringEdges()
@@ -341,5 +335,19 @@ public class Tile : MonoBehaviour
         type = TileType.NONE;
         RecalculateNeighbouringEdges();
         Destroy(gameObject);
+    }
+
+    public void Settle()
+    {
+        float fx = transform.position.x / 1.5f / HexMetrics.outerRadius;
+        int x = (int)(Mathf.Round(fx));
+        float fy = transform.position.y / 2 / HexMetrics.innerRadius + x / 2 - fx * 0.5f;
+        int y = (int)(Mathf.Round(fy));
+
+        Vector3 position;
+        position.x = x * HexMetrics.outerRadius * 1.5f;
+        position.y = (y + x * 0.5f - x / 2) * HexMetrics.innerRadius * 2;
+        position.z = 0f;
+        transform.position = position;
     }
 }
