@@ -39,6 +39,10 @@ public class Player : MonoBehaviour {
         {
             Kill();
         }
+        else if(floor.type == Tile.TileType.VILLAGE)
+        {
+            Win();
+        }
         if(menu && menu.IsActive() || dead) {
             return;
         }
@@ -204,6 +208,11 @@ public class Player : MonoBehaviour {
         }
     }
 
+    public void Win()
+    {
+        StartCoroutine(ActuallyWin());
+    }
+
     public void Kill()
     {
         StartCoroutine(ActuallyKill());
@@ -222,6 +231,26 @@ public class Player : MonoBehaviour {
             yield return new WaitForSeconds(4);
             SceneLoader loader = FindObjectOfType<SceneLoader>();
             if(loader)
+            {
+                loader.Load("menu");
+            }
+        }
+        yield break;
+    }
+
+    private IEnumerator ActuallyWin()
+    {
+        if (!dead)
+        {
+            dead = true;
+            WinManager w = FindObjectOfType<WinManager>();
+            if (w)
+            {
+                w.FadeIn(2);
+            }
+            yield return new WaitForSeconds(4);
+            SceneLoader loader = FindObjectOfType<SceneLoader>();
+            if (loader)
             {
                 loader.Load("menu");
             }

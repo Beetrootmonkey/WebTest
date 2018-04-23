@@ -11,7 +11,7 @@ public class TileUpdater : MonoBehaviour
         foreach (Tile t in tiles)
         {
             t.Settle();
-            t.SetType(t.type);
+            t.SetType(t.type, true);
         }
         foreach (Tile t in tiles)
         {

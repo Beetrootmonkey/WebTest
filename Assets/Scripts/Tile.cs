@@ -21,7 +21,8 @@ public class Tile : MonoBehaviour
         WATER,
         MOUNTAIN,
         PATH,
-        NONE
+        NONE,
+        SAND
     }
 
     public void OnAwake()
@@ -280,7 +281,11 @@ public class Tile : MonoBehaviour
                 edgePath += "Path/edge_";
                 break;
             case TileType.VILLAGE:
-                mainPath += "villageTile1";
+                mainPath += "villageTile" +
+                    (Random.Range(1, 6) == 1 ? "2" : "1");
+                break;
+            case TileType.SAND:
+                mainPath += "sandTile1";
                 break;
             case TileType.WATER:
                 mainPath += "Water/waterTile1";
